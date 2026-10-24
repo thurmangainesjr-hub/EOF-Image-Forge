@@ -8,6 +8,7 @@ import { checkEngine } from './lib/engine.js';
 import imageRoutes from './routes/images.js';
 import libraryRoutes from './routes/library.js';
 import puppetRoutes from './routes/puppet.js';
+import studioRoutes from './routes/studio.js';
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.get('/api/health', async (req, res) => {
 app.get('/api/features', (req, res) => {
   res.json({
     features: [
+      { id: 'studio', name: 'Chat studio', status: 'built', phase: 'Studio 1' },
       { id: 'covers', name: 'Book covers', status: 'built', phase: 'B' },
       { id: 'character-art', name: 'Character art', status: 'built', phase: 'B' },
       { id: 'puppet', name: '2D character puppet', status: 'built', phase: 'C' }
@@ -38,6 +40,7 @@ app.get('/api/features', (req, res) => {
 app.use('/api/images', imageRoutes);
 app.use('/api/library', libraryRoutes);
 app.use('/api/puppet', puppetRoutes);
+app.use('/api/studio', studioRoutes);
 
 app.use('/api', (req, res) => {
   res.status(404).json({ error: 'Not found' });

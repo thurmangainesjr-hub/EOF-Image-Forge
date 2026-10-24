@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PuppetStudio from './puppet/PuppetStudio.jsx';
+import Studio from './studio/Studio.jsx';
 
 const PHASE_LABEL = { B: 'Phase B', C: 'Coming in Phase C' };
 const STATUS_LABEL = { built: 'Ready to try', planned: 'Planned' };
@@ -55,7 +56,9 @@ function Cover({ image }) {
 }
 
 function ImageCard({ image, large }) {
-  const label = image.kind === 'cover' ? image.overlay?.title || 'Cover' : image.request?.name || 'Character';
+  const label = image.kind === 'cover' ? image.overlay?.title || 'Cover'
+    : image.kind === 'studio' ? image.text?.slice(0, 40) || 'Studio picture'
+    : image.request?.name || 'Character';
   return (
     <li className={`card card-${image.kind}${large ? ' card-large' : ''}`}>
       <a href={image.url} target="_blank" rel="noreferrer" className="card-art" title="Open full size">
@@ -63,7 +66,7 @@ function ImageCard({ image, large }) {
       </a>
       <div className="card-meta">
         <span className="card-title">{label}</span>
-        <span className="card-kind">{image.kind === 'cover' ? 'Book cover' : 'Character sheet'}</span>
+        <span className="card-kind">{image.kind === 'cover' ? 'Book cover' : image.kind === 'studio' ? 'Studio' : 'Character sheet'}</span>
         <a className="card-download" href={image.url} download={`${label}.png`}>Download</a>
       </div>
     </li>
@@ -170,17 +173,21 @@ export default function App() {
       .then(res => (res.ok ? res.json() : { features: [] }))
       .then(data => setFeatures(data.features))
       .catch(() => {});
+    loadImages();
+  }, []);
+
+  function loadImages() {
     fetch('/api/images')
       .then(res => (res.ok ? res.json() : { images: [] }))
       .then(data => setImages(data.images))
       .catch(() => {});
-  }, []);
+  }
 
   const engineOff = !health?.engine?.online;
   const addImage = image => setImages(list => [image, ...list]);
 
   const [tab, setTab] = useState('cover');
-  const [view, setView] = useState('images');
+  const [view, setView] = useState('studio');
   const [latest, ...older] = images;
 
   return (
@@ -194,13 +201,16 @@ export default function App() {
           </div>
         </div>
         <nav className="views">
-          <button type="button" className={view === 'images' ? 'view active' : 'view'} onClick={() => setView('images')}>Images</button>
+          <button type="button" className={view === 'studio' ? 'view active' : 'view'} onClick={() => setView('studio')}>Studio</button>
+          <button type="button" className={view === 'images' ? 'view active' : 'view'} onClick={() => setView('images')}>Covers &amp; characters</button>
           <button type="button" className={view === 'puppet' ? 'view active' : 'view'} onClick={() => setView('puppet')}>Puppet</button>
         </nav>
-        {view === 'images' && <EngineStatus health={health} error={error} />}
+        {view !== 'puppet' && <EngineStatus health={health} error={error} />}
       </header>
 
-      {view === 'puppet' ? <PuppetStudio images={images} /> : (
+      {view === 'studio' && <Studio engineReady={!engineOff} onImagesChanged={loadImages} />}
+      {view === 'puppet' && <PuppetStudio images={images} />}
+      {view === 'images' && (
       <main className="layout">
         <aside className="maker">
           <div className="tabs" role="tablist">

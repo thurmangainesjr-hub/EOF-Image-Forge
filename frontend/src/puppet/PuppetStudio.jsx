@@ -365,7 +365,7 @@ export default function PuppetStudio({ images }) {
             {BACKDROPS.map(b => <option key={b.id} value={b.id}>{b.label}</option>)}
             {images.map(i => (
               <option key={i.id} value={i.id}>
-                {i.kind === 'cover' ? `Cover: ${i.overlay?.title}` : `Character: ${i.request?.name}`}
+                {i.kind === 'cover' ? `Cover: ${i.overlay?.title}` : i.kind === 'studio' ? `Studio: ${i.text?.slice(0, 40)}` : `Character: ${i.request?.name}`}
               </option>
             ))}
           </select>

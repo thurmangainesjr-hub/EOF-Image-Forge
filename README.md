@@ -15,6 +15,14 @@ You need Node.js 22.
    - **ComfyUI (needs an NVIDIA graphics card):** start ComfyUI. Image Forge looks for it at http://127.0.0.1:8188 and uses the `sd_xl_base_1.0.safetensors` model.
 4. Finished images are saved in `backend/data/images` (not uploaded to GitHub).
 
+## Chat studio
+
+The **Studio** tab opens first. Type what you want in your own words and click **Create**. Then type what to change, like "make the armor silver and keep his face the same", and Image Forge changes the picture and keeps the rest. Tick **Start a new picture** to begin again in the same project.
+
+- Every project keeps its conversation and every version. Click a version to keep working from it, or use **Compare with before** and **Try again**.
+- The shape, style and preset on the right are optional. Changing the shape of an existing picture re-makes it in the new shape.
+- Changing a picture needs the cloud engine (Replicate, default edit model `black-forest-labs/flux-kontext-pro`, set with `REPLICATE_EDIT_MODEL`). Projects are saved in `backend/data/studio`.
+
 ## Puppet studio
 
 Open the **Puppet** tab. Everything runs in your web browser, so no graphics card is needed.
@@ -34,6 +42,7 @@ Open the **Puppet** tab. Everything runs in your web browser, so no graphics car
 
 | Tool | Status |
 | --- | --- |
+| Chat studio | Built (Studio step 1); tested with a stand-in for Replicate, not yet with real pictures |
 | Book covers | Built (Phase B); works with ComfyUI or Replicate, not yet tested with a real engine |
 | Character art | Built (Phase B); works with ComfyUI or Replicate, not yet tested with a real engine |
 | 2D character puppet | Built (Phase C); tested in a browser with a test voice and a fake webcam, not yet with a real face |

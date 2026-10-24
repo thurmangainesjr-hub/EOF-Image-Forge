@@ -15,6 +15,17 @@ export const SIZES = {
   character: { width: 1216, height: 832 }  // landscape, room for front and side views
 };
 
+// SDXL sizes for the ratios the studio offers, all near one megapixel
+const RATIO_SIZES = {
+  '1:1': [1024, 1024], '16:9': [1344, 768], '9:16': [768, 1344], '4:3': [1152, 896], '3:4': [896, 1152],
+  '3:2': [1216, 832], '2:3': [832, 1216], '21:9': [1536, 640], '9:21': [640, 1536], '5:4': [1152, 896], '4:5': [896, 1152]
+};
+
+export function sizeForRatio(ratio) {
+  const [width, height] = RATIO_SIZES[ratio] || RATIO_SIZES['1:1'];
+  return { width, height };
+}
+
 export function textToImage({ positive, negative, width, height, seed, steps = 30, cfg = 7, prefix = 'eof-image-forge' }) {
   return {
     '1': { class_type: 'CheckpointLoaderSimple', inputs: { ckpt_name: checkpointName() } },
