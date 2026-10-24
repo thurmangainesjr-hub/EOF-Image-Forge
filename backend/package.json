@@ -1,0 +1,17 @@
+{
+  "name": "eof-image-forge-backend",
+  "version": "0.1.0",
+  "description": "EOF Image Forge API",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test \"tests/**/*.test.js\""
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
+  }
+}
