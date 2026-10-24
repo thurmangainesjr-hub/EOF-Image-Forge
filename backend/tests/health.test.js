@@ -44,7 +44,7 @@ test('health reports ComfyUI offline without failing', async () => {
   assert.match(body.engine.error, /not running/);
 });
 
-test('no feature is marked live before it is tested on real hardware', async () => {
+test('no feature is marked live before it is tested for real', async () => {
   const res = await fetch(`${base}/api/features`);
   const { features } = await res.json();
   assert.ok(features.length > 0);

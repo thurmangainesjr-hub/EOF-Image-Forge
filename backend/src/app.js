@@ -7,6 +7,7 @@ import cors from 'cors';
 import { checkEngine } from './lib/engine.js';
 import imageRoutes from './routes/images.js';
 import libraryRoutes from './routes/library.js';
+import puppetRoutes from './routes/puppet.js';
 
 const app = express();
 
@@ -29,13 +30,14 @@ app.get('/api/features', (req, res) => {
     features: [
       { id: 'covers', name: 'Book covers', status: 'built', phase: 'B' },
       { id: 'character-art', name: 'Character art', status: 'built', phase: 'B' },
-      { id: 'puppet', name: '2D character puppet', status: 'planned', phase: 'C' }
+      { id: 'puppet', name: '2D character puppet', status: 'built', phase: 'C' }
     ]
   });
 });
 
 app.use('/api/images', imageRoutes);
 app.use('/api/library', libraryRoutes);
+app.use('/api/puppet', puppetRoutes);
 
 app.use('/api', (req, res) => {
   res.status(404).json({ error: 'Not found' });

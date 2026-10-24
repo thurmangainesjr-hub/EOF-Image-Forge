@@ -36,15 +36,16 @@ export function coverPrompt({ title, author, genre, description, style }) {
   };
 }
 
+// The name is left out too, so the model doesn't write a label on the sheet
 export function characterPrompt({ name, description, style }) {
   const parts = [
-    `character reference sheet of ${clean(name, 80)}`,
+    'wordless full-body character design sheet, the same character drawn twice side by side: front view on the left and side profile view on the right',
     clean(description, 600),
-    'full body, front view and side view, neutral pose, plain light background, consistent design',
+    'neutral standing pose, plain light background, consistent design, no labels, no captions, no writing',
     STYLES[style] || STYLES.painted
   ].filter(Boolean);
   return {
     positive: parts.join(', '),
-    negative: `${NO_TEXT}, ${QUALITY_NEGATIVE}, busy background, cropped`
+    negative: `${NO_TEXT}, ${QUALITY_NEGATIVE}, busy background, cropped, back view`
   };
 }

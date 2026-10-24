@@ -115,7 +115,9 @@ test('a character sheet uses a wide image', async () => {
   assert.equal(res.status, 201, await res.clone().text());
   const job = comfyJobs[0];
   assert.deepEqual([job['4'].inputs.width, job['4'].inputs.height], [1216, 832]);
-  assert.match(job['2'].inputs.text, /character reference sheet of Ada/);
+  assert.match(job['2'].inputs.text, /front view .* side profile view/);
+  assert.match(job['2'].inputs.text, /red scarf/);
+  assert.doesNotMatch(job['2'].inputs.text, /Ada/, 'the name is left out so the model does not letter it');
 });
 
 test('missing details are refused before anything is sent to ComfyUI', async () => {
