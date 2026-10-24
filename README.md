@@ -10,7 +10,8 @@ You need Node.js 22.
 
 1. Start the server: open a terminal in `backend`, run `npm install` once, then `npm run dev`. It runs at http://localhost:3010.
 2. Start the web page: open a second terminal in `frontend`, run `npm install` once, then `npm run dev`. Open http://localhost:5190.
-3. For images (Phase B), start ComfyUI on the same computer. Image Forge looks for it at http://127.0.0.1:8188. Copy `backend/.env.example` to `backend/.env` to change that.
+3. For images, start ComfyUI on the same computer. Image Forge looks for it at http://127.0.0.1:8188 and uses the `sd_xl_base_1.0.safetensors` model. Copy `backend/.env.example` to `backend/.env` to change either.
+4. Finished images are saved in `backend/data/images` (not uploaded to GitHub).
 
 ## Tests
 
@@ -20,6 +21,6 @@ You need Node.js 22.
 
 | Tool | Status |
 | --- | --- |
-| Book covers | Planned (Phase B) |
-| Character art | Planned (Phase B) |
+| Book covers | Built (Phase B); works when ComfyUI is running, not yet tested on a real graphics card |
+| Character art | Built (Phase B); works when ComfyUI is running, not yet tested on a real graphics card |
 | 2D character puppet | Planned (Phase C) |

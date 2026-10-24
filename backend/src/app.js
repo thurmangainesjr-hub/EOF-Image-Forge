@@ -5,6 +5,8 @@
 import express from 'express';
 import cors from 'cors';
 import { checkComfyUI } from './lib/comfyui.js';
+import imageRoutes from './routes/images.js';
+import libraryRoutes from './routes/library.js';
 
 const app = express();
 
@@ -25,12 +27,15 @@ app.get('/api/health', async (req, res) => {
 app.get('/api/features', (req, res) => {
   res.json({
     features: [
-      { id: 'covers', name: 'Book covers', status: 'planned', phase: 'B' },
-      { id: 'character-art', name: 'Character art', status: 'planned', phase: 'B' },
+      { id: 'covers', name: 'Book covers', status: 'built', phase: 'B' },
+      { id: 'character-art', name: 'Character art', status: 'built', phase: 'B' },
       { id: 'puppet', name: '2D character puppet', status: 'planned', phase: 'C' }
     ]
   });
 });
+
+app.use('/api/images', imageRoutes);
+app.use('/api/library', libraryRoutes);
 
 app.use('/api', (req, res) => {
   res.status(404).json({ error: 'Not found' });
