@@ -3,8 +3,9 @@
  */
 
 import express from 'express';
-import { runWorkflow, EngineOfflineError } from '../lib/comfyui.js';
-import { textToImage, SIZES } from '../lib/workflows.js';
+import { EngineOfflineError } from '../lib/comfyui.js';
+import { makeImage, engineName } from '../lib/engine.js';
+import { SIZES } from '../lib/workflows.js';
 import { coverPrompt, characterPrompt, STYLES } from '../lib/prompts.js';
 import { saveImage, listImages, imagePath } from '../lib/store.js';
 
@@ -18,10 +19,10 @@ function pickSeed(seed) {
 async function generate(res, kind, prompt, request, seed) {
   try {
     const { width, height } = SIZES[kind];
-    const workflow = textToImage({ ...prompt, width, height, seed, prefix: `eof-${kind}` });
-    const [png] = await runWorkflow(workflow);
+    const [png] = await makeImage({ ...prompt, width, height, seed, prefix: `eof-${kind}` });
     const record = await saveImage(png, {
       kind,
+      engine: engineName(),
       request,
       prompt: prompt.positive,
       negativePrompt: prompt.negative,

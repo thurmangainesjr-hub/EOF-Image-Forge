@@ -4,7 +4,7 @@
 
 import express from 'express';
 import cors from 'cors';
-import { checkComfyUI } from './lib/comfyui.js';
+import { checkEngine } from './lib/engine.js';
 import imageRoutes from './routes/images.js';
 import libraryRoutes from './routes/library.js';
 
@@ -15,7 +15,7 @@ app.use(express.json({ limit: '1mb' }));
 
 // Is the API up, and can it reach the image engine?
 app.get('/api/health', async (req, res) => {
-  const engine = await checkComfyUI();
+  const engine = await checkEngine();
   res.json({
     status: 'ok',
     service: 'eof-image-forge',
