@@ -94,6 +94,7 @@ test('a cover is made in the cloud, saved and served', async () => {
   assert.equal(input.output_format, 'png');
   assert.match(input.prompt, /drake guards the last egg/);
   assert.match(input.prompt, /no text/);
+  assert.doesNotMatch(input.prompt, /Drake Prophecy/, 'the title is left out so the model does not letter it');
   assert.equal(image.engine, 'replicate');
   assert.deepEqual(image.overlay, { title: 'The Drake Prophecy', author: 'Blue' });
 

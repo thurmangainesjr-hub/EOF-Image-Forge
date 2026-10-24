@@ -71,7 +71,7 @@ export async function runReplicate({ positive, width, height, seed }, { timeoutM
     headers: { prefer: 'wait=60' },
     body: JSON.stringify({
       input: {
-        prompt: `${positive}, no text, no lettering`,
+        prompt: `${positive}. The picture contains no text, letters, words or signs of any kind.`,
         aspect_ratio: aspectRatio(width, height),
         output_format: 'png',
         num_outputs: 1,
