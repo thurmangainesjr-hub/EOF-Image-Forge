@@ -44,11 +44,11 @@ test('health reports ComfyUI offline without failing', async () => {
   assert.match(body.engine.error, /not running/);
 });
 
-test('no feature is marked live yet', async () => {
+test('no feature is marked live before it is tested on real hardware', async () => {
   const res = await fetch(`${base}/api/features`);
   const { features } = await res.json();
   assert.ok(features.length > 0);
-  assert.ok(features.every(f => f.status === 'planned'));
+  assert.ok(features.every(f => ['planned', 'built'].includes(f.status)));
 });
 
 test('unknown API paths return 404', async () => {
