@@ -20,9 +20,10 @@ function clean(value, max) {
   return String(value || '').replace(/\s+/g, ' ').trim().slice(0, max);
 }
 
+// The title is never put in the prompt: models try to letter any words they see in quotes
 export function coverPrompt({ title, author, genre, description, style }) {
   const parts = [
-    `book cover artwork for a ${clean(genre, 60) || 'fiction'} book called "${clean(title, 120)}"`,
+    `wordless painted artwork for a ${clean(genre, 60) || 'fiction'} book cover, the image only, with no title, no lettering and no writing anywhere`,
     clean(description, 600),
     'striking central image, strong composition with empty space at the top and bottom for the title',
     STYLES[style] || STYLES.painted

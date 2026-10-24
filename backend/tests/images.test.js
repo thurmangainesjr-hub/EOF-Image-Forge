@@ -97,6 +97,7 @@ test('a cover is made by ComfyUI, saved and served', async () => {
   assert.equal(job['5'].inputs.seed, 42);
   assert.match(job['2'].inputs.text, /drake guards the last egg/);
   assert.match(job['3'].inputs.text, /text, letters/);
+  assert.doesNotMatch(job['2'].inputs.text, /Drake Prophecy/, 'the title is left out so the model does not letter it');
 
   // Title and author are kept to lay over the art as real text
   assert.deepEqual(image.overlay, { title: 'The Drake Prophecy', author: 'Blue' });
