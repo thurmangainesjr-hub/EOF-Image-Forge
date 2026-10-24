@@ -58,26 +58,22 @@ export async function checkReplicate() {
   }
 }
 
-function aspectRatio(width, height) {
+// Replicate's own ratio names for a width and height
+export function aspectRatio(width, height) {
   if (width === height) return '1:1';
   return width > height ? '3:2' : '2:3';
 }
 
-// Make one image in the cloud and return its PNG bytes in an array
-export async function runReplicate({ positive, width, height, seed }, { timeoutMs = Number(process.env.REPLICATE_TIMEOUT_MS) || 180000 } = {}) {
-  // This model has no negative prompt, so the no-text rule goes in the prompt
-  let prediction = await replicateFetch(`${apiUrl()}/v1/models/${replicateModel()}/predictions`, {
+export function editModel() {
+  return process.env.REPLICATE_EDIT_MODEL || 'black-forest-labs/flux-kontext-pro';
+}
+
+// Run one prediction, wait for it, and return the PNG bytes of every output
+async function runPrediction(model, input, { timeoutMs = Number(process.env.REPLICATE_TIMEOUT_MS) || 180000 } = {}) {
+  let prediction = await replicateFetch(`${apiUrl()}/v1/models/${model}/predictions`, {
     method: 'POST',
     headers: { prefer: 'wait=60' },
-    body: JSON.stringify({
-      input: {
-        prompt: `${positive}. The picture contains no text, letters, words or signs of any kind.`,
-        aspect_ratio: aspectRatio(width, height),
-        output_format: 'png',
-        num_outputs: 1,
-        seed
-      }
-    })
+    body: JSON.stringify({ input })
   });
 
   const deadline = Date.now() + timeoutMs;
@@ -99,4 +95,47 @@ export async function runReplicate({ positive, width, height, seed }, { timeoutM
   }
   if (!files.length) throw new EngineOfflineError('Replicate finished but returned no image');
   return files;
+}
+
+// Make one image in the cloud and return its PNG bytes in an array.
+// ratio (like '16:9') wins over width and height when given.
+export function runReplicate({ positive, width, height, ratio, seed }) {
+  // This model has no negative prompt, so the no-text rule goes in the prompt
+  return runPrediction(replicateModel(), {
+    prompt: `${positive}. The picture contains no text, letters, words or signs of any kind.`,
+    aspect_ratio: ratio || aspectRatio(width, height),
+    output_format: 'png',
+    num_outputs: 1,
+    seed
+  });
+}
+
+// Hand Replicate a picture to work from. It returns a link its models can read.
+async function uploadFile(png) {
+  const form = new FormData();
+  form.append('content', new Blob([png], { type: 'image/png' }), 'image.png');
+  let res;
+  try {
+    res = await fetch(`${apiUrl()}/v1/files`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${process.env.REPLICATE_API_TOKEN}` },
+      body: form
+    });
+  } catch {
+    throw new EngineOfflineError('Could not reach Replicate. Check the internet connection.');
+  }
+  if (!res.ok) throw new EngineOfflineError(`Replicate would not take the picture (${res.status})`);
+  const file = await res.json();
+  return file.urls.get;
+}
+
+// Change an existing picture by following plain instructions, keeping the rest
+export async function editWithReplicate({ instruction, png, seed, ratio }) {
+  return runPrediction(editModel(), {
+    prompt: instruction,
+    input_image: await uploadFile(png),
+    aspect_ratio: ratio || 'match_input_image',
+    output_format: 'png',
+    seed
+  });
 }

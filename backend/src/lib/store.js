@@ -52,3 +52,18 @@ export async function imagePath(id) {
     return null;
   }
 }
+
+// One image's record, or null
+export async function getImage(id) {
+  if (!ID_PATTERN.test(id || '')) return null;
+  try {
+    return JSON.parse(await fs.readFile(path.join(imageDir(), `${id}.json`), 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+export async function readImagePng(id) {
+  const file = await imagePath(id);
+  return file ? fs.readFile(file) : null;
+}
