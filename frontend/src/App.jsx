@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import PuppetStudio from './puppet/PuppetStudio.jsx';
 
 const PHASE_LABEL = { B: 'Phase B', C: 'Coming in Phase C' };
 const STATUS_LABEL = { built: 'Ready to try', planned: 'Planned' };
@@ -179,6 +180,7 @@ export default function App() {
   const addImage = image => setImages(list => [image, ...list]);
 
   const [tab, setTab] = useState('cover');
+  const [view, setView] = useState('images');
   const [latest, ...older] = images;
 
   return (
@@ -188,12 +190,17 @@ export default function App() {
           <span className="brand-mark" aria-hidden="true">✦</span>
           <div>
             <h1>EOF Image Forge</h1>
-            <p className="lead">Book covers and character art for the E.O.F. Creative Cloud</p>
+            <p className="lead">Book covers, character art and talking puppets for the E.O.F. Creative Cloud</p>
           </div>
         </div>
-        <EngineStatus health={health} error={error} />
+        <nav className="views">
+          <button type="button" className={view === 'images' ? 'view active' : 'view'} onClick={() => setView('images')}>Images</button>
+          <button type="button" className={view === 'puppet' ? 'view active' : 'view'} onClick={() => setView('puppet')}>Puppet</button>
+        </nav>
+        {view === 'images' && <EngineStatus health={health} error={error} />}
       </header>
 
+      {view === 'puppet' ? <PuppetStudio images={images} /> : (
       <main className="layout">
         <aside className="maker">
           <div className="tabs" role="tablist">
@@ -246,6 +253,7 @@ export default function App() {
           )}
         </section>
       </main>
+      )}
     </div>
   );
 }
