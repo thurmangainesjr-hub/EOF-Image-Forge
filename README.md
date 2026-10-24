@@ -10,7 +10,9 @@ You need Node.js 22.
 
 1. Start the server: open a terminal in `backend`, run `npm install` once, then `npm run dev`. It runs at http://localhost:3010.
 2. Start the web page: open a second terminal in `frontend`, run `npm install` once, then `npm run dev`. Open http://localhost:5190.
-3. For images, start ComfyUI on the same computer. Image Forge looks for it at http://127.0.0.1:8188 and uses the `sd_xl_base_1.0.safetensors` model. Copy `backend/.env.example` to `backend/.env` to change either.
+3. Pick how pictures are made. Copy `backend/.env.example` to `backend/.env`, then either:
+   - **Cloud (any computer):** make a Replicate account, add a little credit, and paste your key from https://replicate.com/account/api-tokens after `REPLICATE_API_TOKEN=`. Each picture costs about $0.003 with the default model. Keep the key private.
+   - **ComfyUI (needs an NVIDIA graphics card):** start ComfyUI. Image Forge looks for it at http://127.0.0.1:8188 and uses the `sd_xl_base_1.0.safetensors` model.
 4. Finished images are saved in `backend/data/images` (not uploaded to GitHub).
 
 ## Tests
@@ -21,6 +23,6 @@ You need Node.js 22.
 
 | Tool | Status |
 | --- | --- |
-| Book covers | Built (Phase B); works when ComfyUI is running, not yet tested on a real graphics card |
-| Character art | Built (Phase B); works when ComfyUI is running, not yet tested on a real graphics card |
+| Book covers | Built (Phase B); works with ComfyUI or Replicate, not yet tested with a real engine |
+| Character art | Built (Phase B); works with ComfyUI or Replicate, not yet tested with a real engine |
 | 2D character puppet | Planned (Phase C) |

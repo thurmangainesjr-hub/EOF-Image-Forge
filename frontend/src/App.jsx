@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 const PHASE_LABEL = { B: 'Phase B', C: 'Coming in Phase C' };
-const STATUS_LABEL = { built: 'Works when ComfyUI is running', planned: 'Planned' };
+const STATUS_LABEL = { built: 'Works when the image engine is ready', planned: 'Planned' };
 const STYLES = ['painted', 'photo', 'illustrated', 'comic', 'noir'];
 
 async function postJson(url, body) {
@@ -21,16 +21,21 @@ function EngineStatus({ health, error }) {
   }
   if (!health) return <p className="status">Checking the image engine…</p>;
   const { engine } = health;
+  const cloud = engine.name === 'replicate';
   if (engine.online) {
     return (
       <p className="status status-good">
-        ComfyUI is running{engine.devices?.length ? ` on ${engine.devices.join(', ')}` : ''}.
+        {cloud
+          ? `Ready. Pictures are made in the cloud by Replicate (${engine.model}).`
+          : `ComfyUI is running${engine.devices?.length ? ` on ${engine.devices.join(', ')}` : ''}.`}
       </p>
     );
   }
   return (
     <p className="status status-warn">
-      ComfyUI is not running, so no images can be made right now. Start ComfyUI on your PC, then reload this page.
+      {cloud
+        ? `The cloud image engine is not ready: ${engine.error}.`
+        : 'ComfyUI is not running, so no images can be made right now. Start ComfyUI on your PC, or add a Replicate key to use the cloud, then reload this page.'}
     </p>
   );
 }
@@ -107,7 +112,7 @@ function CoverForm({ disabled, onMade }) {
       <select value={form.style} onChange={set('style')}>
         {STYLES.map(s => <option key={s} value={s}>{s}</option>)}
       </select>
-      <button type="submit" disabled={disabled || busy}>{busy ? 'ComfyUI is painting… (about a minute)' : 'Make cover'}</button>
+      <button type="submit" disabled={disabled || busy}>{busy ? 'Painting… (up to a minute)' : 'Make cover'}</button>
       {message && <p className="error">{message}</p>}
     </form>
   );
@@ -140,7 +145,7 @@ function CharacterForm({ disabled, onMade }) {
       <select value={form.style} onChange={set('style')}>
         {STYLES.map(s => <option key={s} value={s}>{s}</option>)}
       </select>
-      <button type="submit" disabled={disabled || busy}>{busy ? 'ComfyUI is painting… (about a minute)' : 'Make character sheet'}</button>
+      <button type="submit" disabled={disabled || busy}>{busy ? 'Painting… (up to a minute)' : 'Make character sheet'}</button>
       {message && <p className="error">{message}</p>}
     </form>
   );
