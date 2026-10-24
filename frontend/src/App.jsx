@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 const PHASE_LABEL = { B: 'Phase B', C: 'Coming in Phase C' };
-const STATUS_LABEL = { built: 'Works when the image engine is ready', planned: 'Planned' };
+const STATUS_LABEL = { built: 'Ready to try', planned: 'Planned' };
 const STYLES = ['painted', 'photo', 'illustrated', 'comic', 'noir'];
 
 async function postJson(url, body) {
@@ -17,25 +17,23 @@ async function postJson(url, body) {
 
 function EngineStatus({ health, error }) {
   if (error) {
-    return <p className="status status-bad">The Image Forge server is not running. Start it with <code>npm run dev</code> in the backend folder.</p>;
+    return <p className="status status-bad">Image Forge server is off. Start it with <code>npm run dev</code> in the backend folder.</p>;
   }
   if (!health) return <p className="status">Checking the image engine…</p>;
   const { engine } = health;
   const cloud = engine.name === 'replicate';
   if (engine.online) {
     return (
-      <p className="status status-good">
-        {cloud
-          ? `Ready. Pictures are made in the cloud by Replicate (${engine.model}).`
-          : `ComfyUI is running${engine.devices?.length ? ` on ${engine.devices.join(', ')}` : ''}.`}
+      <p className="status status-good" title={cloud ? engine.model : engine.devices?.join(', ')}>
+        {cloud ? 'Cloud engine ready (Replicate)' : 'ComfyUI ready'}
       </p>
     );
   }
   return (
-    <p className="status status-warn">
+    <p className="status status-warn" title={engine.error}>
       {cloud
-        ? `The cloud image engine is not ready: ${engine.error}.`
-        : 'ComfyUI is not running, so no images can be made right now. Start ComfyUI on your PC, or add a Replicate key to use the cloud, then reload this page.'}
+        ? `Cloud engine not ready: ${engine.error}`
+        : 'No image engine. Start ComfyUI or add a Replicate key.'}
     </p>
   );
 }
@@ -55,13 +53,18 @@ function Cover({ image }) {
   );
 }
 
-function ImageCard({ image }) {
+function ImageCard({ image, large }) {
+  const label = image.kind === 'cover' ? image.overlay?.title || 'Cover' : image.request?.name || 'Character';
   return (
-    <li className="card">
-      {image.kind === 'cover' ? <Cover image={image} /> : <img src={image.url} alt={`Character sheet of ${image.request?.name}`} />}
-      <p className="card-meta">
-        {image.kind === 'cover' ? 'Cover' : `Character: ${image.request?.name}`} · seed {image.seed}
-      </p>
+    <li className={`card card-${image.kind}${large ? ' card-large' : ''}`}>
+      <a href={image.url} target="_blank" rel="noreferrer" className="card-art" title="Open full size">
+        {image.kind === 'cover' ? <Cover image={image} /> : <img src={image.url} alt={`Character sheet of ${image.request?.name}`} />}
+      </a>
+      <div className="card-meta">
+        <span className="card-title">{label}</span>
+        <span className="card-kind">{image.kind === 'cover' ? 'Book cover' : 'Character sheet'}</span>
+        <a className="card-download" href={image.url} download={`${label}.png`}>Download</a>
+      </div>
     </li>
   );
 }
@@ -112,7 +115,7 @@ function CoverForm({ disabled, onMade }) {
       <select value={form.style} onChange={set('style')}>
         {STYLES.map(s => <option key={s} value={s}>{s}</option>)}
       </select>
-      <button type="submit" disabled={disabled || busy}>{busy ? 'Painting… (up to a minute)' : 'Make cover'}</button>
+      <button type="submit" disabled={disabled || busy}>{busy ? 'Painting… about a minute' : 'Make cover'}</button>
       {message && <p className="error">{message}</p>}
     </form>
   );
@@ -145,7 +148,7 @@ function CharacterForm({ disabled, onMade }) {
       <select value={form.style} onChange={set('style')}>
         {STYLES.map(s => <option key={s} value={s}>{s}</option>)}
       </select>
-      <button type="submit" disabled={disabled || busy}>{busy ? 'Painting… (up to a minute)' : 'Make character sheet'}</button>
+      <button type="submit" disabled={disabled || busy}>{busy ? 'Painting… about a minute' : 'Make character sheet'}</button>
       {message && <p className="error">{message}</p>}
     </form>
   );
@@ -175,49 +178,74 @@ export default function App() {
   const engineOff = !health?.engine?.online;
   const addImage = image => setImages(list => [image, ...list]);
 
+  const [tab, setTab] = useState('cover');
+  const [latest, ...older] = images;
+
   return (
-    <main className="page">
-      <header>
-        <h1>EOF Image Forge</h1>
-        <p className="lead">Book covers, character art and animated character puppets.</p>
+    <div className="app">
+      <header className="topbar">
+        <div className="brand">
+          <span className="brand-mark" aria-hidden="true">✦</span>
+          <div>
+            <h1>EOF Image Forge</h1>
+            <p className="lead">Book covers and character art for the E.O.F. Creative Cloud</p>
+          </div>
+        </div>
+        <EngineStatus health={health} error={error} />
       </header>
 
-      <section>
-        <h2>Image engine</h2>
-        <EngineStatus health={health} error={error} />
-      </section>
+      <main className="layout">
+        <aside className="maker">
+          <div className="tabs" role="tablist">
+            <button type="button" role="tab" aria-selected={tab === 'cover'} className={tab === 'cover' ? 'tab active' : 'tab'} onClick={() => setTab('cover')}>Book cover</button>
+            <button type="button" role="tab" aria-selected={tab === 'character'} className={tab === 'character' ? 'tab active' : 'tab'} onClick={() => setTab('character')}>Character</button>
+          </div>
+          {tab === 'cover' ? (
+            <>
+              <p className="hint">The art is made without words. The real title and author go on top.</p>
+              <CoverForm disabled={engineOff} onMade={addImage} />
+            </>
+          ) : (
+            <>
+              <p className="hint">A full-body sheet with front and side views, to keep a character looking the same.</p>
+              <CharacterForm disabled={engineOff} onMade={addImage} />
+            </>
+          )}
 
-      <section>
-        <h2>Book cover</h2>
-        <p className="hint">The art is made without words; the title and author are added on top as real text.</p>
-        <CoverForm disabled={engineOff} onMade={addImage} />
-      </section>
-
-      <section>
-        <h2>Character sheet</h2>
-        <CharacterForm disabled={engineOff} onMade={addImage} />
-      </section>
-
-      {images.length > 0 && (
-        <section>
-          <h2>Made so far</h2>
-          <ul className="gallery">
-            {images.map(image => <ImageCard key={image.id} image={image} />)}
+          <ul className="tools">
+            {features.map(f => (
+              <li key={f.id} className={`tool tool-${f.status}`}>
+                <span>{f.name}</span>
+                <span className="tool-phase">{STATUS_LABEL[f.status] || PHASE_LABEL[f.phase]}</span>
+              </li>
+            ))}
           </ul>
-        </section>
-      )}
+        </aside>
 
-      <section>
-        <h2>Tools</h2>
-        <ul className="tools">
-          {features.map(f => (
-            <li key={f.id} className="tool">
-              <span className="tool-name">{f.name}</span>
-              <span className="tool-phase">{STATUS_LABEL[f.status] || PHASE_LABEL[f.phase]}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-    </main>
+        <section className="stage">
+          {!latest ? (
+            <div className="empty">
+              <span className="empty-mark" aria-hidden="true">✦</span>
+              <p>Your covers and characters will show up here.</p>
+            </div>
+          ) : (
+            <>
+              <h2>Newest</h2>
+              <ul className="spotlight">
+                <ImageCard image={latest} large />
+              </ul>
+              {older.length > 0 && (
+                <>
+                  <h2>Earlier <span className="count">{older.length}</span></h2>
+                  <ul className="gallery">
+                    {older.map(image => <ImageCard key={image.id} image={image} />)}
+                  </ul>
+                </>
+              )}
+            </>
+          )}
+        </section>
+      </main>
+    </div>
   );
 }
